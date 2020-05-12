@@ -1,0 +1,7 @@
+deployment
+.next
+README.md
+node_modules
+database
+.git
+ENV
