@@ -1,9 +1,9 @@
-## Build the docker container: 
+## Build the docker container:
+When using helm to deploy the dashboard to Kubernetes, you need to match the container version with the appVersion of the Helm chart.
 ```
 cat deployment/Chart.yaml | grep appVersion
 # increase app Version in `Chart.yaml` and `package.json` based on semver versioning
-docker build -t registry.gitlab.com/trieb.work/owncloud-dashboard:0.2.7 .
-docker push registry.gitlab.com/trieb.work/owncloud-dashboard:0.2.7
+docker build -t owncloud-dashboard:0.2.8 .
 ``` 
 
 ## Deploy to kubernetes with helm:
@@ -37,5 +37,5 @@ docker run --rm --env KIMAI_API_URL="https://demo-stable.kimai.org" \
 --env JSONDB_FILE_PATH="/opt/app/database/db.json" \
 -v `pwd`/database:'/opt/app/database' \
 -p 3000:3000 \
-registry.gitlab.com/trieb.work/owncloud-dashboard:0.2.8
+owncloud-dashboard:0.2.8
 ```
