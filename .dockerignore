@@ -1,7 +1,11 @@
+.dockerignore
+.git*
+.drone*
+Dockerfile
 deployment
 .next
-README.md
 node_modules
 database
 .git
 ENV
+CHANGELOG.*

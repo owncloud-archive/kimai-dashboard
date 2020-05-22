@@ -1,17 +1,10 @@
-## Build the docker container:
-When using helm to deploy the dashboard to Kubernetes, you need to match the container version with the appVersion of the Helm chart.
-```
-cat deployment/Chart.yaml | grep appVersion
-# increase app Version in `Chart.yaml` and `package.json` based on semver versioning
-docker build -t owncloud-dashboard:0.2.8 .
-``` 
+# kimai-dashboard
 
-## Deploy to kubernetes with helm:
-```
-helm upgrade -n owncloud -f deployment/values.yaml owncloud-dashboard deployment/
-``` 
+[![Build Status](https://drone.owncloud.com/api/badges/owncloud/kimai-dashboard/status.svg)](https://drone.owncloud.com/owncloud/kimai-dashboard/)
+[![Docker Hub](https://img.shields.io/badge/docker-latest-blue.svg?logo=docker&logoColor=white)](https://hub.docker.com/r/owncloudops/kimai-dashboard)
 
-## Configure the Container via following environment variables:
+## Environment variables
+
 ```
 KIMAI_API_URL
 KIMAI_API_USER
@@ -20,22 +13,37 @@ JSONDB_FILE_PATH (default: 'database/db.json', relative from server.js or absolu
 SMTP_HOST (default: smtp.mailgun.org)
 SMTP_PORT (default: 456)
 SMTP_SECURE (default: TRUE)
-SMTP_FROM_MAIL 
+SMTP_FROM_MAIL
 SMTP_USER
 SMTP_PASS
 ```
 
-## Or start docker locally:
+## Build the docker container
+
+When using helm to deploy the dashboard to Kubernetes, you need to match the container version with the appVersion of the Helm chart.
+
+```console
+cat deployment/Chart.yaml | grep appVersion
+# increase app Version in `Chart.yaml` and `package.json` based on semver versioning
+docker build -t kimai-dashboard:0.2.7 .
 ```
+
+## Deploy to kubernetes with helm
+
+```console
+helm upgrade -n owncloud -f deployment/values.yaml kimai-dashboard deployment/
+```
+
+## Or start container locally
+
+```console
 docker run --rm --env KIMAI_API_URL="https://demo-stable.kimai.org" \
---env KIMAI_API_USER="susan_super" \
---env KIMAI_API_TOKEN="api_kitten" \
---env SMTP_HOST="smtp.ethereal.email" \
---env SMTP_USER="craig.doyle@ethereal.email" \
---env SMTP_PASS="CHUmzRF31QccWKh1EM" \
---env SMTP_FROM_MAIL="kimai.report@owncloud.com" \
---env JSONDB_FILE_PATH="/opt/app/database/db.json" \
--v `pwd`/database:'/opt/app/database' \
+-e KIMAI_API_USER="susan_super" \
+-e KIMAI_API_TOKEN="api_kitten" \
+-e SMTP_HOST="smtp.ethereal.email" \
+-e SMTP_USER="craig.doyle@ethereal.email" \
+-e SMTP_PASS="CHUmzRF31QccWKh1EM" \
+-e SMTP_FROM_MAIL="kimai.report@owncloud.com" \
 -p 3000:3000 \
-owncloud-dashboard:0.2.8
+kimai-dashboard
 ```
