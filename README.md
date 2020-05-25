@@ -5,17 +5,18 @@
 
 ## Environment variables
 
-```
-KIMAI_API_URL
-KIMAI_API_USER
-KIMAI_API_TOKEN
-JSONDB_FILE_PATH (default: 'database/db.json', relative from server.js or absolute file path)
-SMTP_HOST (default: smtp.mailgun.org)
-SMTP_PORT (default: 456)
-SMTP_SECURE (default: TRUE)
-SMTP_FROM_MAIL
-SMTP_USER
-SMTP_PASS
+```console
+KIMAI_API_URL=
+KIMAI_API_USER=
+KIMAI_API_TOKEN=
+# relative from server.js or absolute file path
+JSONDB_FILE_PATH=database/db.json
+SMTP_HOST=
+SMTP_PORT=465
+SMTP_SECURE=TRUE
+SMTP_FROM_MAIL=
+SMTP_USER=
+SMTP_PASS=
 ```
 
 ## Build the docker container
