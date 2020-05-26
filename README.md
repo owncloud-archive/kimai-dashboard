@@ -5,7 +5,7 @@
 
 ## Environment variables
 
-```console
+```Shell
 KIMAI_API_URL=
 KIMAI_API_USER=
 KIMAI_API_TOKEN=
@@ -23,7 +23,7 @@ SMTP_PASS=
 
 When using helm to deploy the dashboard to Kubernetes, you need to match the container version with the appVersion of the Helm chart.
 
-```console
+```Shell
 cat deployment/Chart.yaml | grep appVersion
 # increase app Version in `Chart.yaml` and `package.json` based on semver versioning
 docker build -t kimai-dashboard:0.2.7 .
@@ -31,13 +31,13 @@ docker build -t kimai-dashboard:0.2.7 .
 
 ## Deploy to kubernetes with helm
 
-```console
+```Shell
 helm upgrade -n owncloud -f deployment/values.yaml kimai-dashboard deployment/
 ```
 
 ## Or start container locally
 
-```console
+```Shell
 docker run --rm --env KIMAI_API_URL="https://demo-stable.kimai.org" \
 -e KIMAI_API_USER="susan_super" \
 -e KIMAI_API_TOKEN="api_kitten" \
