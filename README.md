@@ -48,3 +48,13 @@ docker run --rm --env KIMAI_API_URL="https://demo-stable.kimai.org" \
 -p 3000:3000 \
 kimai-dashboard
 ```
+
+# Test SMTP settings
+If you want to quickly send a test email to verify your SMTP settings you have to connect to a running container
+```Shell
+docker exec -it kimai-dashboar -- /bin/sh
+```
+And afterwards run the testing command
+```Shell
+SEND_TO=test@example.com node backend_modules/test_smtp.js
+```
