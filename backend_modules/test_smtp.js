@@ -1,8 +1,6 @@
 const nodemailer = require("nodemailer");
 
-
-
-const SMTP_SECURE = (process.env.SMTP_SECURE && process.env.SMTP_SECURE==='FALSE') ? false : true;
+const SMTP_SECURE = (process.env.SMTP_SECURE && process.env.SMTP_SECURE === 'FALSE') ? false : true;
 const SMTP_USER = process.env.SMTP_USER;
 const SMTP_PASS = process.env.SMTP_PASS;
 const SMTP_FROM_MAIL = process.env.SMTP_FROM_MAIL;
@@ -20,7 +18,7 @@ const sendMail = async (subject, text) => {
     });
 
     let info = await mail.sendMail({
-        from: '"OwnCloud Reporting 📈" <'+SMTP_FROM_MAIL+'>',
+        from: '"OwnCloud Reporting 📈" <' + SMTP_FROM_MAIL + '>',
         to: SEND_TO, // list of receivers
         subject,
         text,
