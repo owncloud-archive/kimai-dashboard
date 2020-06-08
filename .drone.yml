@@ -48,6 +48,12 @@ steps:
     ref:
     - refs/tags/**
 
+trigger:
+  ref:
+  - refs/heads/master
+  - refs/tags/**
+  - refs/pull/**
+
 ---
 kind: pipeline
 name: notifications
@@ -80,6 +86,9 @@ steps:
     - failure
 
 trigger:
+  ref:
+  - refs/heads/master
+  - refs/tags/**
   status:
   - success
   - failure
