@@ -38,13 +38,30 @@ helm upgrade -n owncloud -f deployment/values.yaml kimai-dashboard deployment/
 ## Or start container locally
 
 ```Shell
-docker run --rm --env KIMAI_API_URL="https://demo-stable.kimai.org" \
--e KIMAI_API_USER="susan_super" \
--e KIMAI_API_TOKEN="api_kitten" \
--e SMTP_HOST="smtp.ethereal.email" \
--e SMTP_USER="craig.doyle@ethereal.email" \
--e SMTP_PASS="CHUmzRF31QccWKh1EM" \
--e SMTP_FROM_MAIL="kimai.report@owncloud.com" \
--p 3000:3000 \
+docker run --rm \
+    -e KIMAI_API_URL="https://demo-stable.kimai.org" \
+    -e KIMAI_API_USER="susan_super" \
+    -e KIMAI_API_TOKEN="api_kitten" \
+    -e SMTP_HOST="mail.example.com" \
+    -e SMTP_USER="smtp_user" \
+    -e SMTP_PASS="smtp_pass" \
+    -e SMTP_FROM_MAIL="kimai@example.com" \
+    -p 3000:3000 \
 kimai-dashboard
+```
+
+## Test SMTP settings
+
+If you want to quickly send a test email to verify your SMTP use:
+
+```Shell
+docker run --rm --entrypoint node \
+    -e SEND_TO="test@example.com" \
+    -e SMTP_HOST="mail.example.com" \
+    -e SMTP_PORT="465" \
+    -e SMTP_SECURE="TRUE" \
+    -e SMTP_FROM_MAIL="kimai@example.com" \
+    -e SMTP_USER="smtp_user" \
+    -e SMTP_PASS="smtp_pass" \
+kimai-dashboard backend_modules/test_smtp.js
 ```
