@@ -107,12 +107,10 @@ const Import = (props) => {
     
     //cron table stuff:
     useEffect(() => {
-        console.log('out here. importState', importState)
-        if(!importError && importData && !importData.message && importState[type].length === 0){
+        if(!importError && importData && !importData.message && importState[type] && importState[type].length === 0){
             // importState = [...importData,...importState];
             
             setImportState({ ...importState, [type] : importData });
-            console.log('in here', importState)
         }
     }, [importError,importData]);
     const importRows = importState[type] && importState[type].sort((a,b)=>new Date(b.date)-new Date(a.date)).map(value => [ 
@@ -121,7 +119,6 @@ const Import = (props) => {
         value.new,
         value.closed,
         (<IconButton aria-label="add to shopping cart" onClick={()=>{
-            console.log("asdf",importState[type],value.date)
             setImportState({...importState, [type] : importState[type].filter(row => (new Date(row.date).getMonth() !== new Date(value.date).getMonth() 
                                                         || new Date(row.date).getYear() !== new Date(value.date).getYear()))})
         }}>
@@ -129,8 +126,6 @@ const Import = (props) => {
         </IconButton>)
     ]);
     // importState[importState.length].date;
-    console.log('import rows', importRows)
-    console.log('import state', importState)
 
     let defaultDate;
     if(importState[type] && importState[type].length > 0){
@@ -172,11 +167,13 @@ const Import = (props) => {
                     || new Date(val.date).getYear() !== rowState.date.getYear())), rowState ]
                     setImportState(
                         {
-                            ...importState[type].filter(val => (new Date(val.date).getMonth() !== rowState.date.getMonth() 
-                                                        || new Date(val.date).getYear() !== rowState.date.getYear())),
+                            ...importState,
                             [type]: update
                         })    
 
+
+                    console.log('state', importState)
+                    console.log('rows', importRows)    
                     let newDate = new Date('1990-01-01T00:00:00.000Z');
                     newDate.setYear(rowState.date.getYear()+1900);
                     newDate.setMonth(rowState.date.getMonth()+1);
@@ -275,7 +272,7 @@ const Import = (props) => {
                                         { importError && (<p>failed to load table: {importError.message}</p>)}
                                         { !importError && importData && importData.message && (<p>failed to load table: {JSON.stringify(importData.message)}</p>)}
                                         { !importError && !importData && (<LinearProgress />)}
-                                        { !importError && importData && !importData.message && (<EditTable rows={importRows} importInputs={importInputs} header={['Month', 'Total Open Cases', 'New Cases', 'Closed Cases','']}/>)}
+                                        { !importError && importRows && importData && !importData.message && (<EditTable rows={importRows} importInputs={importInputs} header={['Month', 'Total Open Cases', 'New Cases', 'Closed Cases','']}/>)}
                                     </Paper>
                                 </Grid>
                                 {/* placeholders for save btn */}

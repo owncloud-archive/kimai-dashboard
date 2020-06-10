@@ -124,12 +124,12 @@ const Main = (props) => {
                                 <AccessTimeIcon /> 
                             </IconButton>
                         </Tooltip>
-                        <Tooltip title="Consulting data import" aria-label="Consulting data import">
+                        <Tooltip title="Consulting & Support Cases Import" aria-label="Consulting & Support Cases Import">
                             <IconButton aria-label="import" className={classes.iconmenupoint_import} onClick={() => router.push('/import')}>    
                                 <PostAddIcon />
                             </IconButton>
                         </Tooltip>
-                        <Tooltip title="Settings page" aria-label="Consulting data import">
+                        <Tooltip title="Settings page" aria-label="settings page">
                             <IconButton className={classes.iconmenupoint} onClick={() => router.push('/settings')}>
                                 <SettingsIcon />
                             </IconButton>
