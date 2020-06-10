@@ -87,12 +87,9 @@ const saveChanges = async (importData, type) => {
 const fns = new DateFnsUtils();
 const Import = (props) => {
 
-    const [activeTab, setActiveTab] = useState(0);
-    const [type, setType] = useState(activeTab === 0 ? 'consulting' : 'support')
-    
-    useEffect(() => {
-        setType(activeTab === 0 ? 'consulting' : 'support')
-    },[activeTab])
+    const [activeTab, setActiveTab] = useState(0);    
+    const type = activeTab === 0 ? 'consulting' : 'support'
+
     
     const { data: importData, error: importError } = useSWR('/api/import?type='+type, fetcher);
 
