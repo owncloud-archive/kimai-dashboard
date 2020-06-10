@@ -19,8 +19,8 @@ const fns = new DateFnsUtils();
 const tickFormatter = (tick) => {
     return fns.format(new Date(tick),'MMM yyyy');
 };
-const ImportedData = ({ fromDate, toDate }) => {
-    const { data, error } = useSWR(['/api/importDataGraph'], fetcher);
+const ImportedData = ({ fromDate, toDate, type }) => {
+    const { data, error } = useSWR(['/api/importDataGraph?type='+type], fetcher);
     if (error) return <div>failed to load: {error}</div>
     if (!error && data && data.message) return <div>failed to load: {data.message}</div>
     if (!data) return <div>loading...</div>

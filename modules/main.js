@@ -242,9 +242,18 @@ const Main = (props) => {
                         <Grid item xs={12} md={6}>                            
                             <Paper className={classes.chartPaper}>
                                 <Typography variant="h6" gutterBottom color="textSecondary" align="left">
-                                    Consulting Reporting
+                                    Consulting Cases
                                 </Typography>
-                                <ImportedData fromDate={selectedFrom} toDate={selectedTo}/>
+                                <ImportedData fromDate={selectedFrom} toDate={selectedTo} type="consulting"/>
+                            </Paper>
+                        </Grid>
+
+                        <Grid item xs={12} md={6}>                            
+                            <Paper className={classes.chartPaper}>
+                                <Typography variant="h6" gutterBottom color="textSecondary" align="left">
+                                    Support Cases
+                                </Typography>
+                                <ImportedData fromDate={selectedFrom} toDate={selectedTo} type="support"/>
                             </Paper>
                         </Grid>
                     </Grid>
