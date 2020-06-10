@@ -87,10 +87,10 @@ const saveChanges = async (importData, type) => {
 const fns = new DateFnsUtils();
 const Import = (props) => {
 
-    const [activeTab, setActiveTab] = React.useState(0);
-    const [type, setType] = React.useState(activeTab === 0 ? 'consulting' : 'support')
+    const [activeTab, setActiveTab] = useState(0);
+    const [type, setType] = useState(activeTab === 0 ? 'consulting' : 'support')
     
-    React.useEffect(() => {
+    useEffect(() => {
         setType(activeTab === 0 ? 'consulting' : 'support')
     },[activeTab])
     
