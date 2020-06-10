@@ -5,13 +5,15 @@ export default async (req, res) => {
     try{
         if (req.method === 'POST') {
             const { body } = req;
-            await kimai.setSettings('import','values',body);
+            const { type } = req.query
+            await kimai.setSettings('import', type+'_values',body);
             //save stuff to localdb
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify({status:'ok'}));
         } else {
-            let import_values = await kimai.getSettings('import','values');
+            const { type } = req.query
+            let import_values = await kimai.getSettings('import',type+'_values');
             // console.log(import_values);
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
