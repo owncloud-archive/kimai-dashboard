@@ -23,6 +23,8 @@ import {
     KeyboardDatePicker,
 } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns'; //will be deprecated with v4.0.0-alpha.3'
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab'
 
 import EditTable from '../modules/tables/editTable';
 import SaveIcon from '@material-ui/icons/Save';
@@ -66,56 +68,65 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-const saveChanges = async (importData) => {
+const saveChanges = async (importData, type) => {
     let jsonImport;
-    if(importData){
-        const resEmail = await fetch('/api/import',{
+    if(importData[type]){
+        const resEmail = await fetch('/api/import?type='+type,{
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(importData),
+            body: JSON.stringify(importData[type]),
         });
         jsonImport = await resEmail.json();
         console.log("jsonImport",jsonImport);
     }
-    return ((importData && jsonImport && jsonImport.status === 'ok') || !importData);
+    return ((importData[type] && jsonImport && jsonImport.status === 'ok') || !importData);
 };
 
 const fns = new DateFnsUtils();
 const Import = (props) => {
 
-    const { data: importData, error: importError } = useSWR(['/api/import'], fetcher);
+    const [activeTab, setActiveTab] = useState(0);    
+    const type = activeTab === 0 ? 'consulting' : 'support'
 
-    const [importState, setImportState] = useState([]); // [{date,open,new,closed}]
+    
+    const { data: importData, error: importError } = useSWR('/api/import?type='+type, fetcher);
+
+    const [importState, setImportState] = useState({ consulting:[], support:[] }); // [{date,open,new,closed}]
 
     const [saveLoading, setSaveLoading] = useState(false);
     const [saveError, setSaveError] = useState(false);
+    
+    const handleChange = (event, newValue) => {
+        setActiveTab(newValue);
+    };
+    
     //cron table stuff:
     useEffect(() => {
-        if(!importError && importData && !importData.message && importState.length === 0){
+        if(!importError && importData && !importData.message && importState[type] && importState[type].length === 0){
             // importState = [...importData,...importState];
-            setImportState(importData);
+            
+            setImportState({ ...importState, [type] : importData });
         }
     }, [importError,importData]);
-    const importRows = importState && importState.sort((a,b)=>new Date(b.date)-new Date(a.date)).map(value => [ 
+    const importRows = importState[type] && importState[type].sort((a,b)=>new Date(b.date)-new Date(a.date)).map(value => [ 
         fns.format(new Date(value.date),'MMM yyyy'),
         value.open,
         value.new,
         value.closed,
         (<IconButton aria-label="add to shopping cart" onClick={()=>{
-            console.log("asdf",importState,value.date)
-            setImportState(importState.filter(row => (new Date(row.date).getMonth() !== new Date(value.date).getMonth() 
-                                                        || new Date(row.date).getYear() !== new Date(value.date).getYear())))
+            setImportState({...importState, [type] : importState[type].filter(row => (new Date(row.date).getMonth() !== new Date(value.date).getMonth() 
+                                                        || new Date(row.date).getYear() !== new Date(value.date).getYear()))})
         }}>
             <DeleteOutlineIcon />
         </IconButton>)
     ]);
     // importState[importState.length].date;
-    console.log(importState);
+
     let defaultDate;
-    if(importState && importState.length > 0){
-        const lastDate = new Date(importState[importState.length-1].date)
+    if(importState[type] && importState[type].length > 0){
+        const lastDate = new Date(importState[type][importState[type].length-1].date)
         defaultDate = new Date('1990-01-01T00:00:00.000Z');
         defaultDate.setYear(lastDate.getYear()+1900);
         defaultDate.setMonth(lastDate.getMonth()-1);
@@ -146,17 +157,20 @@ const Import = (props) => {
         (<TextField fullWidth type="number" inputProps={{style:{textAlign:'right'}}} value={rowState.new} margin="none" onChange={(e)=>setRowState({...rowState,new:e.currentTarget.value})}/>),
         (<TextField fullWidth type="number" inputProps={{style:{textAlign:'right'}}} value={rowState.closed} margin="none" onChange={(e)=>setRowState({...rowState,closed:e.currentTarget.value})}/>),
         (<IconButton color="primary" aria-label="add to import data" onClick={()=>{
-            if(importState.filter(val => (new Date(val.date).getMonth() === rowState.date.getMonth() 
+            if(importState[type].filter(val => (new Date(val.date).getMonth() === rowState.date.getMonth() 
                                         && new Date(val.date).getYear() === rowState.date.getYear())).length > 0){
                 if(confirm('Duplicate month. Overwrite existing values from this month?')){
-                    
+                    let update = [...importState[type].filter(val => (new Date(val.date).getMonth() !== rowState.date.getMonth() 
+                    || new Date(val.date).getYear() !== rowState.date.getYear())), rowState ]
                     setImportState(
-                        [
-                            ...importState.filter(val => (new Date(val.date).getMonth() !== rowState.date.getMonth() 
-                                                        || new Date(val.date).getYear() !== rowState.date.getYear())),
-                            rowState
-                        ])    
+                        {
+                            ...importState,
+                            [type]: update
+                        })    
 
+
+                    console.log('state', importState)
+                    console.log('rows', importRows)    
                     let newDate = new Date('1990-01-01T00:00:00.000Z');
                     newDate.setYear(rowState.date.getYear()+1900);
                     newDate.setMonth(rowState.date.getMonth()+1);
@@ -171,7 +185,8 @@ const Import = (props) => {
                     });
                 }
             } else {
-                setImportState([...importState, rowState])
+                let update = [...importState[type], rowState ]
+                setImportState({...importState, [type]: update})
                 let newDate = new Date('1990-01-01T00:00:00.000Z');
                 newDate.setYear(rowState.date.getYear()+1900);
                 newDate.setMonth(rowState.date.getMonth()+1);
@@ -233,6 +248,19 @@ const Import = (props) => {
                                 {saveError && <Grid item xs={12} md={12}>
                                     <Alert id="alert" severity="error" className={classes.alert}>Save unsuccessful!</Alert>
                                 </Grid>}
+
+                                <Grid item xs={12} md={12}>
+                                    <Tabs
+                                        value={activeTab}
+                                        onChange={handleChange}
+                                        indicatorColor="primary"
+                                        textColor="primary"
+                                        centered
+                                    >
+                                        <Tab label="Consulting Cases" />
+                                        <Tab label="Support Cases" />
+                                    </Tabs>
+                                </Grid>
                                 <Grid item xs={12} md={12}>
                                     <Paper className={classes.chartPaper}>
                                         <Typography variant="h6" gutterBottom color="textSecondary" align="center">
@@ -241,7 +269,7 @@ const Import = (props) => {
                                         { importError && (<p>failed to load table: {importError.message}</p>)}
                                         { !importError && importData && importData.message && (<p>failed to load table: {JSON.stringify(importData.message)}</p>)}
                                         { !importError && !importData && (<LinearProgress />)}
-                                        { !importError && importData && !importData.message && (<EditTable rows={importRows} importInputs={importInputs} header={['Month', 'Total Open Cases', 'New Cases', 'Closed Cases','']}/>)}
+                                        { !importError && importRows && importData && !importData.message && (<EditTable rows={importRows} importInputs={importInputs} header={['Month', 'Total Open Cases', 'New Cases', 'Closed Cases','']}/>)}
                                     </Paper>
                                 </Grid>
                                 {/* placeholders for save btn */}
@@ -259,7 +287,7 @@ const Import = (props) => {
                             className={classes.fab} 
                             onClick={async ()=>{
                                 setSaveLoading(true);
-                                const successfull = await saveChanges(importState);
+                                const successfull = await saveChanges(importState, type);
                                 // on error set router/link to #alert (id="alert")
                                 setTimeout(()=>{
                                     setSaveError(!successfull);
