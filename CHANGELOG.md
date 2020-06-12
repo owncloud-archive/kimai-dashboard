@@ -1,4 +1,4 @@
 * BUGFIX
-  * update dependencies
+  * fix consulting import
 * ENHANCEMENT
-  * add script to test smtp settings
+  * add support cases importer
