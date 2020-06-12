@@ -6,7 +6,7 @@ const MAX_TIMESHEET_AMOUNT = 20000;
 export default async (req, res) => {
     try{
         const import_values = (await kimai.getSettings('import','values'));
-        if(!import_values) throw new Error("No data imported, import data in import page first.");
+        if(!import_values || import_values.length < 1) throw new Error("No data imported, import data in import page first.");
         // console.log("filtered_project_budgets",filtered_project_budgets);
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
