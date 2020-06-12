@@ -83,7 +83,7 @@ const useStyles = makeStyles(theme => ({
         display:'none',
         ['@media print']:{
             display:'block',
-        }  
+        }
     }
 }));
 
@@ -120,23 +120,23 @@ const Main = (props) => {
                         </Typography>
 
                         <Tooltip title="Add a time booking" aria-label="Add a time booking">
-                            <IconButton aria-label="import" className={classes.iconmenupoint_booking} onClick={() => router.push('/booking')}>    
-                                <AccessTimeIcon /> 
+                            <IconButton aria-label="import" className={classes.iconmenupoint_booking} onClick={() => router.push('/booking')}>
+                                <AccessTimeIcon />
                             </IconButton>
                         </Tooltip>
                         <Tooltip title="Consulting & Support Cases Import" aria-label="Consulting & Support Cases Import">
-                            <IconButton aria-label="import" className={classes.iconmenupoint_import} onClick={() => router.push('/import')}>    
+                            <IconButton aria-label="import" className={classes.iconmenupoint_import} onClick={() => router.push('/import')}>
                                 <PostAddIcon />
                             </IconButton>
                         </Tooltip>
-                        <Tooltip title="Settings page" aria-label="settings page">
+                        <Tooltip title="Settings page" aria-label="Settings page">
                             <IconButton className={classes.iconmenupoint} onClick={() => router.push('/settings')}>
                                 <SettingsIcon />
                             </IconButton>
                         </Tooltip>
                     </Toolbar>
                 </AppBar>
-                
+
                 {/* grid breakpoints: xs, sm, md, lg, and xl. */}
 
                 <Typography variant="h4" className={classes.printonly}>
@@ -187,7 +187,7 @@ const Main = (props) => {
                             </Paper>
                         </Grid>
 
-                        <Grid item xs={12} md={6}>                            
+                        <Grid item xs={12} md={6}>
                             <Paper className={classes.chartPaper}>
                                 <Typography variant="h6" gutterBottom color="textSecondary" align="left">
                                     Consulting hours by customer
@@ -196,7 +196,7 @@ const Main = (props) => {
                             </Paper>
                         </Grid>
 
-                        <Grid item xs={12} md={6}>                            
+                        <Grid item xs={12} md={6}>
                             <Paper className={classes.chartPaper}>
                                 <Typography variant="h6" gutterBottom color="textSecondary" align="left">
                                     Time spent by billing types
@@ -204,8 +204,8 @@ const Main = (props) => {
                                 <BillingTypeHours fromDate={selectedFrom} toDate={selectedTo}/>
                             </Paper>
                         </Grid>
-                        
-                        <Grid item xs={12} md={6}>                            
+
+                        <Grid item xs={12} md={6}>
                             <Paper className={classes.chartPaper}>
                                 <Typography variant="h6" gutterBottom color="textSecondary" align="left">
                                     Time spent by customers (only TAM Projects)
@@ -213,8 +213,8 @@ const Main = (props) => {
                                 <ProjectTAM fromDate={selectedFrom} toDate={selectedTo}/>
                             </Paper>
                         </Grid>
-                        
-                        <Grid item xs={12} md={6}>                            
+
+                        <Grid item xs={12} md={6}>
                             <Paper className={classes.chartPaper}>
                                 <Typography variant="h6" gutterBottom color="textSecondary" align="left">
                                     Engineer working hours by customer
@@ -223,7 +223,7 @@ const Main = (props) => {
                             </Paper>
                         </Grid>
 
-                        <Grid item xs={12} md={6}>                            
+                        <Grid item xs={12} md={6}>
                             <Paper className={classes.chartPaper}>
                                 <Typography variant="h6" gutterBottom color="textSecondary" align="left">
                                     Pre sales working hours by customer
@@ -232,14 +232,14 @@ const Main = (props) => {
                             </Paper>
                         </Grid>
 
-                        <Grid item xs={12} md={12} className={classes.printonly}>  
+                        <Grid item xs={12} md={12} className={classes.printonly}>
                             <br/><br/><br/><br/><br/><br/>
                         </Grid>
-                        <Grid item xs={12} md={12} className={classes.printonly}>  
+                        <Grid item xs={12} md={12} className={classes.printonly}>
                             <br/><br/><br/><br/><br/><br/>
                         </Grid>
 
-                        <Grid item xs={12} md={6}>                            
+                        <Grid item xs={12} md={6}>
                             <Paper className={classes.chartPaper}>
                                 <Typography variant="h6" gutterBottom color="textSecondary" align="left">
                                     Consulting Cases
@@ -248,7 +248,7 @@ const Main = (props) => {
                             </Paper>
                         </Grid>
 
-                        <Grid item xs={12} md={6}>                            
+                        <Grid item xs={12} md={6}>
                             <Paper className={classes.chartPaper}>
                                 <Typography variant="h6" gutterBottom color="textSecondary" align="left">
                                     Support Cases
@@ -259,12 +259,12 @@ const Main = (props) => {
                     </Grid>
                 </Container>
             </main>
-            <Fab 
+            <Fab
                 // disabled={!(!importError && importData && !importData.message)}  //TODO: disable print button while loading, need rewrite to have access to the loading state in this component
-                variant="extended" 
-                color="primary" 
-                aria-label="print as pdf" 
-                className={classes.fab} 
+                variant="extended"
+                color="primary"
+                aria-label="print as pdf"
+                className={classes.fab}
                 onClick={()=>window.print()}>
                 <PictureAsPdfIcon />
                 &nbsp;
