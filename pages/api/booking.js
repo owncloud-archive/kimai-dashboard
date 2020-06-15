@@ -35,7 +35,6 @@ export default async (req, res) => {
                     //"tags": "pew pow",
                 });
                 console.log("resp",resp);
-                if(resp.code !== 200) throw new Error("Kimai API returned with HTTP status code: "+resp.code);
             }
 
             res.statusCode = 200;

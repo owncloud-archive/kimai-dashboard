@@ -51,9 +51,9 @@ const postKimai = async (path,body) => {
         retries: 3,
         retryDelay: (attempt, error, response) => Math.pow(2, attempt) * 1000,
     });
+    if (!result.ok) throw new Error('Post to kimai not successful!')
     const json = await result.json();
-    // console.log(json);
-    // console.log("fetchKimai done:",path);
+  
     return json;
 };
 
