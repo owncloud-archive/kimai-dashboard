@@ -18,7 +18,7 @@ export default async (req, res) => {
         const cron_ids = cron_users.filter(u=>u.included).map(u=>u.id);
         // console.log(cron_ids);
         const cron_hours_per_costumer = timesheets.reduce((a,o)=>{
-            if(cron_ids.includes(o.user)){
+            if(cron_ids.includes(o.user) && o.project.name.toLowerCase().includes('presales')){
                 const groupId = o.project.customer.id;
                 if(a[groupId]) {
                     a[groupId].customerTimeTotalSpend += o.duration;
