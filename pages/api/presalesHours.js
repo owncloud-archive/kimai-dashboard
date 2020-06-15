@@ -19,7 +19,6 @@ export default async (req, res) => {
         // console.log(cron_ids);
         const cron_hours_per_costumer = timesheets.reduce((a,o)=>{
             if(cron_ids.includes(o.user) && o.project.name.toLowerCase().includes('presales')){
-                console.log( o.project.name.toLowerCase() )
                 const groupId = o.project.customer.id;
                 if(a[groupId]) {
                     a[groupId].customerTimeTotalSpend += o.duration;
