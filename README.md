@@ -3,6 +3,8 @@
 [![Build Status](https://drone.owncloud.com/api/badges/owncloud/kimai-dashboard/status.svg)](https://drone.owncloud.com/owncloud/kimai-dashboard/)
 [![Docker Hub](https://img.shields.io/badge/docker-latest-blue.svg?logo=docker&logoColor=white)](https://hub.docker.com/r/owncloudops/kimai-dashboard)
 
+This is a custom extension for Kimai written in Node.js which provides a reprting dashboard and a custom time booking interface.
+
 ## Environment variables
 
 ```Shell
