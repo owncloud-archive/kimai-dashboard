@@ -1,4 +1,4 @@
 * BUGFIX
-  * fix consulting import
+  * fix fast booking
 * ENHANCEMENT
-  * add support cases importer
+  * adding the presales filter in the backend
