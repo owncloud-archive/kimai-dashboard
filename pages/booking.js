@@ -399,6 +399,9 @@ const Home = (props) => {
                                                                 )}
                                                             aria-label="text alignment"
                                                             >
+                                                            <ToggleButton value={"0.25"}>
+                                                                15m
+                                                            </ToggleButton>
                                                             <ToggleButton value={"0.5"}>
                                                                 30m
                                                             </ToggleButton>
@@ -410,9 +413,6 @@ const Home = (props) => {
                                                             </ToggleButton>
                                                             <ToggleButton value={"4.0"}>
                                                                 4h
-                                                            </ToggleButton>
-                                                            <ToggleButton value={"6.0"}>
-                                                                6h
                                                             </ToggleButton>
                                                             <ToggleButton value={"8.0"}>
                                                                 8h
