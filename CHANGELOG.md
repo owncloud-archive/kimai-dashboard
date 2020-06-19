@@ -1,4 +1,2 @@
-* BUGFIX
-  * fix fast booking
 * ENHANCEMENT
-  * adding the presales filter in the backend
+  * remove 6h booking slot and replace it with a 15min slot
