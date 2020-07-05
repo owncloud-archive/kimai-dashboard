@@ -22,6 +22,8 @@ import PostAddIcon from '@material-ui/icons/PostAdd';
 // import Autocomplete from '@material-ui/lab/Autocomplete';
 import { useRouter } from 'next/router'
 
+import { useSession } from 'next-auth/client'
+
 
 //import icons
 import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf';
@@ -89,6 +91,7 @@ const useStyles = makeStyles(theme => ({
 
 const Main = (props) => {
     const classes = useStyles();
+    const [ session, loading ] = useSession()
     const [selectedFrom, setSelectedFrom] = useState(new Date(((new Date()).setMonth(new Date().getMonth() - 1)))); //today - 1 month
     const [selectedTo, setSelectedTo] = useState(new Date());
     const router = useRouter()
