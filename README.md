@@ -21,6 +21,9 @@ SMTP_USER=
 SMTP_PASS=
 # the URL where the dashboard is deployed (e.g. https://dashboard.kimai.owncloud.com)
 SITE=
+# The URL of the LDAP(s) server
+LDAP_URL=
+BASE_DN="ou=people,dc=planetexpress,dc=com"
 ```
 
 ## Build the docker container

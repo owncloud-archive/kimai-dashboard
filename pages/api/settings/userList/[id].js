@@ -1,13 +1,14 @@
 // const Parallel = require('async-parallel');
 const kimai = require('../../../../backend_modules/kimai');
+import { withAuth } from '../../../../modules/withAuth'
 
-export default async (req, res) => {
+
+export default withAuth( async (req, res) => {
     try{
         if (req.method === 'POST') {
             const { body,query } = req;
-            // console.log("booooody",body,query);
 
-            await kimai.setSettings('users',query.id,body);
+            await kimai.setSettings(req.auth.user.email, 'users',query.id,body);
 
             //save stuff to localdb
             res.statusCode = 200;
@@ -39,4 +40,4 @@ export default async (req, res) => {
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify({ message: e.message }));
     }
-};
+});

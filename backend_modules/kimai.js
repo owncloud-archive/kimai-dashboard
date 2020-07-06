@@ -57,6 +57,12 @@ const postKimai = async (path,body) => {
     return json;
 };
 
+/**
+ * Get values from the JSON DB
+ * @param {string} userId the user ID from LDAP
+ * @param {string} key 
+ * @param {*} id 
+ */
 const getSettings = async (userId,key,id) => {
     try{
         //await Parallel.each(project_details, async (proj) => db.set('projects.'+proj.id, proj).write(), 1);
@@ -65,6 +71,13 @@ const getSettings = async (userId,key,id) => {
         console.dir(e);
     }
 };
+/**
+ * Set values in the JSON DB
+ * @param {*} userId the user ID coming from LDAP
+ * @param {*} key 
+ * @param {*} id 
+ * @param {*} data 
+ */
 const setSettings = async (userId,key,id,data) => {
     try{
         //await Parallel.each(project_details, async (proj) => db.set('projects.'+proj.id, proj).write(), 1);

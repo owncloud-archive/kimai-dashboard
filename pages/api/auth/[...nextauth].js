@@ -2,11 +2,16 @@ import NextAuth from 'next-auth'
 import Providers from 'next-auth/providers'
 import ldap from 'ldapjs'
 
-const url = 'ldap://localhost:389/'
-const baseDn = 'DC=planetexpress,DC=com'
-const upn = 'admin@planetexpress.com'
-const password = 'GoodNewsEveryone'
 
+
+const url = process.env.LDAP_URL
+if (!url) throw new Error('LDAP URL missing. Add it via env variables')
+const baseDn = process.env.BASE_DN
+if (!baseDn) throw new Error('Base DN missing.')
+
+const client = ldap.createClient({
+  url
+})
 
 
 const options = {
@@ -15,7 +20,7 @@ const options = {
     providers: [
         Providers.Credentials({
           // The name to display on the sign in form (e.g. 'Sign in with...')
-          name: 'Credentials',
+          name: 'ownCloud LDAP',
           // The credentials is used to generate a suitable form on the sign in page.
           // You can specify whatever fields you are expecting to be submitted.
           // e.g. domain, username, password, 2FA token, etc.
@@ -25,19 +30,16 @@ const options = {
           },
           authorize: async (credentials) => {
             // Add logic here to look up the user from the credentials supplied
-            //const user = { id: 1, name: 'J Smith', email: 'jsmith@example.com' }
-            const client = ldap.createClient({
-                url
-            })
-            console.log('credentials', credentials)
-            
-            let string = 'cn=Hubert J. Farnsworth,ou=people,dc=planetexpress,dc=com'
+            let user = null
 
-            let result = await Search(client, string).catch(error => console.error('Error searching for user in LDAP', error))
-        
-  
-            let user = { id: result.uid, name: result.displayName }
-
+          
+            let username = `cn=${credentials.username},${baseDn}`
+            let validLogIn = await Bind(username, credentials.password).catch(error =>  console.error('Bind not succesful', error))
+            if (validLogIn){
+              let result = await Search( username ).catch(error => console.error('Error searching for user in LDAP', error))
+              if (result) user = { id: result.uid, name: result.displayName, email: result.mail }
+            }
+      
       
             if (user) {
               // Any object returned will be saved in `user` property of the JWT
@@ -54,10 +56,17 @@ const options = {
   
 export default (req, res) => NextAuth(req, res, options)
 
+async function Bind(username, password){
+  return new Promise((resolve, reject) => {
+    client.bind(username, password, (err) => {
+      if (err) reject(new Error(err))
+      resolve(true)
+    })
+  })
+}
 
 
-
-async function Search(client, search) {
+async function Search(search) {
   return new Promise((resolve, reject) => {
     client.search(search, (err, res) =>{
       if (err) reject(new Error(err))

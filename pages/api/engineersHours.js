@@ -15,7 +15,7 @@ export default withAuth( async (req, res) => {
 
         let timesheets = await kimai.fetchKimai('/api/timesheets?user=all&size='+MAX_TIMESHEET_AMOUNT+'&begin='+fromDate+'T01:01:01&end='+toDate+'T23:59:59&full=true');
         if(timesheets.length > (MAX_TIMESHEET_AMOUNT-1))  throw new Error("input Date range to large");
-        const engineer_users = await kimai.getSettings('users','engineer');
+        const engineer_users = await kimai.getSettings(req.auth.user.email, 'users','engineer');
         if(!engineer_users) throw new Error("No engineer users exist. Update user list in settings page.");
         const engineer_ids = engineer_users.filter(u=>u.included).map(u=>u.id);
         // console.log(engineer_ids);
