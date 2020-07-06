@@ -7,6 +7,7 @@ import Grid from '@material-ui/core/Grid';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import AccessTimeIcon from '@material-ui/icons/AccessTime';
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import Paper from '@material-ui/core/Paper';
 import {
     MuiPickersUtilsProvider,
@@ -59,21 +60,28 @@ const useStyles = makeStyles(theme => ({
         cursor:'pointer',
         position:"absolute",
         color:"white",
-        right:'100px',
+        right:'140px',
         '&:hover': { opacity:0.8 },
     },
     iconmenupoint: {
         cursor:'pointer',
         position:"absolute",
         color:"white",
-        right:'20px',
+        right:'60px',
         '&:hover': { opacity:0.8 },
     },
     iconmenupoint_import: {
         cursor:'pointer',
         position:"absolute",
         color:"white",
-        right:'60px',
+        right:'100px',
+        '&:hover': { opacity:0.8 },
+    },
+    iconmenupoint_logout: {
+        cursor:'pointer',
+        position:"absolute",
+        color:"white",
+        right:'20px',
         '&:hover': { opacity:0.8 },
     },
     noprint: {
@@ -137,6 +145,16 @@ const Main = (props) => {
                                 <SettingsIcon />
                             </IconButton>
                         </Tooltip>
+                        {!loading && session && <Tooltip title={`Logout user ${session.user.name}`}>
+                            <IconButton aria-label="logout" className={classes.iconmenupoint_logout} onClick={() => router.push('/api/auth/signout')}>
+                                <ExitToAppIcon />
+                            </IconButton>    
+                        </Tooltip>}
+                        {!loading && !session && <Tooltip title="Sign In">
+                            <IconButton aria-label="signin" className={classes.iconmenupoint_logout} onClick={() => router.push('/api/auth/signin')}>
+                                <ExitToAppIcon />
+                            </IconButton>    
+                        </Tooltip>}
                     </Toolbar>
                 </AppBar>
 

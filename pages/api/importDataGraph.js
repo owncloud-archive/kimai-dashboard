@@ -1,9 +1,11 @@
 // const Parallel = require('async-parallel');
 const kimai = require('../../backend_modules/kimai');
+import { withAuth } from '../../modules/withAuth'
+
 
 const MAX_TIMESHEET_AMOUNT = 20000;
 
-export default async (req, res) => {
+export default withAuth( async (req, res) => {
     try{
         const { type } = req.query
         const import_values = (await kimai.getSettings('import', type+'_values'));
@@ -18,4 +20,4 @@ export default async (req, res) => {
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify({ message: e.message }));
     }
-};
+});

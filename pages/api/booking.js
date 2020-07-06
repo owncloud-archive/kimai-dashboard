@@ -1,7 +1,9 @@
 // const Parallel = require('async-parallel');
 const kimai = require('../../backend_modules/kimai');
+import { withAuth } from '../../modules/withAuth'
 
-export default async (req, res) => {
+
+export default withAuth( async (req, res) => {
     try{
         if (req.method === 'POST') {
             const { body } = req;
@@ -56,4 +58,4 @@ export default async (req, res) => {
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify({ message: e.message }));
     }
-};
+});

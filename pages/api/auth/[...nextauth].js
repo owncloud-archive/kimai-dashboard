@@ -29,13 +29,14 @@ const options = {
             const client = ldap.createClient({
                 url
             })
-            client.search('cn=Hubert J. Farnsworth,ou=people,dc=planetexpress,dc=com', function(err, res) {
-                res.on('searchEntry', function(entry) {
-                    console.log('entry: ' + JSON.stringify(entry.object));
-                  });
-            });
+            console.log('credentials', credentials)
+            
+            let string = 'cn=Hubert J. Farnsworth,ou=people,dc=planetexpress,dc=com'
 
-            let user = null
+            let result = await Search(client, string).catch(error => console.error('Error searching for user in LDAP', error))
+        
+  
+            let user = { id: result.uid, name: result.displayName }
 
       
             if (user) {
@@ -52,3 +53,18 @@ const options = {
 }
   
 export default (req, res) => NextAuth(req, res, options)
+
+
+
+
+async function Search(client, search) {
+  return new Promise((resolve, reject) => {
+    client.search(search, (err, res) =>{
+      if (err) reject(new Error(err))
+      res.on('searchEntry', (entry) => {
+        resolve(entry.object)
+      })
+    })
+
+  })
+}

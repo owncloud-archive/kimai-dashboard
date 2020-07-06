@@ -19,6 +19,8 @@ SMTP_SECURE=TRUE
 SMTP_FROM_MAIL=
 SMTP_USER=
 SMTP_PASS=
+# the URL where the dashboard is deployed (e.g. https://dashboard.kimai.owncloud.com)
+SITE=
 ```
 
 ## Build the docker container
@@ -48,6 +50,7 @@ docker run --rm \
     -e SMTP_USER="smtp_user" \
     -e SMTP_PASS="smtp_pass" \
     -e SMTP_FROM_MAIL="kimai@example.com" \
+    -e SITE="http://localhost:3000" \
     -p 3000:3000 \
 kimai-dashboard
 ```
