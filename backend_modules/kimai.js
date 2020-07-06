@@ -57,18 +57,18 @@ const postKimai = async (path,body) => {
     return json;
 };
 
-const getSettings = async (key,id) => {
+const getSettings = async (userId,key,id) => {
     try{
         //await Parallel.each(project_details, async (proj) => db.set('projects.'+proj.id, proj).write(), 1);
-        return await db.get(key+'_'+id).value();
+        return await db.get(userId+'_'+key+'_'+id).value();
     } catch(e){
         console.dir(e);
     }
 };
-const setSettings = async (key,id,data) => {
+const setSettings = async (userId,key,id,data) => {
     try{
         //await Parallel.each(project_details, async (proj) => db.set('projects.'+proj.id, proj).write(), 1);
-        return await db.set(key+'_'+id,data).write();
+        return await db.set(userId+'_'+key+'_'+id,data).write();
     } catch(e){
         console.dir(e);
     }

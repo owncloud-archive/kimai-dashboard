@@ -4,6 +4,7 @@ import { withAuth } from '../../modules/withAuth'
 
 
 export default withAuth( async (req, res) => {
+    console.log(req.user)
     try{
         if (req.method === 'POST') {
             const { body } = req;

@@ -6,6 +6,7 @@ import { withAuth } from '../../modules/withAuth'
 const MAX_TIMESHEET_AMOUNT = 20000;
 
 export default withAuth( async (req, res) => {
+    console.log(req.user)
     const { query: { fromDate, toDate } } = req;
     try{
         //check inputs,
