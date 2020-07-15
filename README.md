@@ -19,10 +19,10 @@ SMTP_SECURE=TRUE
 SMTP_FROM_MAIL=
 SMTP_USER=
 SMTP_PASS=
-# the URL where the dashboard is deployed (e.g. https://dashboard.kimai.owncloud.com)
+# the URL where the dashboard is deployed (e.g. https://dashboard.example.com)
 SITE=
 # The URL of the LDAP(s) server
-LDAP_URL=
+LDAP_URL="ldap://localhost:389/"
 BASE_DN="ou=people,dc=planetexpress,dc=com"
 ```
 
