@@ -1,6 +1,10 @@
 import NextAuth from 'next-auth'
 import Providers from 'next-auth/providers'
 import ldap from 'ldapjs'
+import { getLocationOrigin } from 'next/dist/next-server/lib/utils';
+
+const AD = require('activedirectory2').promiseWrapper;
+
 
 
 
@@ -16,6 +20,12 @@ const ldapGroupField = process.env.LDAP_MAPPING_GROUP || 'ou'
 const client = ldap.createClient({
   url
 })
+
+const config = { url: url,
+               baseDN: baseDn,
+               username: 'cn=admin,dc=planetexpress,dc=com',
+               password: 'GoodNewsEveryone' }
+const ad = new AD(config);
 
 
 const options = {
@@ -40,15 +50,24 @@ const options = {
             password: {  label: "Password", type: "password" }
           },
           authorize: async (credentials) => {
-            // Add logic here to look up the user from the credentials supplied
+        
             let user = null
 
           
             let username = `cn=${credentials.username},${baseDn}`
-            let validLogIn = await Bind(username, credentials.password).catch(error =>  console.error('Bind not succesful', error))
+            const validLogIn = await ad.authenticate(username, credentials.password).catch(error => console.error('AD error', error))
+            //let validLogIn = await Bind(username, credentials.password).catch(error =>  console.error('Bind not succesful', error))
             if (validLogIn){
               let result = await Search( username ).catch(error => console.error('Error searching for user in LDAP', error))
-              if (result) user = { id: result[ldapIdField], name: result[ldapNameField], email: result[ldapEmailField], group: result[ldapGroupField] }
+              let groupLookup = await ad.getGroupMembershipForUser(username).catch(error => console.error('Error getting groups in LDAP', error));
+              console.log(groupLookup);
+              let groups = []
+              if (groupLookup && groupLookup.length > 0){
+                groups = groupLookup.map((group) => group.cn)
+              }
+              if (result) user = { id: result[ldapIdField], name: result[ldapNameField] || result['givenName'], email: result[ldapEmailField], groups }
+            } else {
+              console.log('login for', username, 'not successful')
             }
       
       

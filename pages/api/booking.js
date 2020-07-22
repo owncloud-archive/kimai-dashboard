@@ -4,6 +4,15 @@ import { withAuth } from '../../modules/withAuth'
 
 
 export default withAuth( async (req, res) => {
+    if (process.env.AUTH_GROUPS_BOOKING) {
+        const validGroups = process.env.AUTH_GROUPS_BOOKING.split(',')
+        const found = validGroups.some((r) => req.auth.user.groups.includes(r))
+        if (!found){
+            return res.status(403).json({ message: 'You are not in the correct group to access time booking.' })
+        }
+    } else {
+        console.log('No allowed user groups for the booking page defined. Allowing all groups now!')
+    }
     try{
         if (req.method === 'POST') {
             const { body } = req;

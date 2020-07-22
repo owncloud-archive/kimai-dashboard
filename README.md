@@ -28,7 +28,10 @@ LDAP_MAPPING_UID="uid"
 LDAP_MAPPING_NAME="displayName"
 LDAP_MAPPING_MAIL="mail"
 JWT_SECRET="ewrgw3456746hwrth35678356jh"
-LDAP_MAPPING_GROUP="ou"
+# the LDAP groups/ou that are allowed to access the dashboard
+AUTH_GROUPS_DASHBOARD="Delivering Crew,Staff"
+# the LDAP groups/ou that are allowed to access the time booking page
+AUTH_GROUPS_BOOKING="Office Management,Staff"
 ```
 
 ## Build the docker container
