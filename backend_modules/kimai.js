@@ -21,7 +21,6 @@ db.defaults({ projects:{} })
   .write();
 
   const fetchKimai = async (path) => {
-    console.log("fetchKimai init:",KIMAI_API_URL + path);
     const result = await fetch(KIMAI_API_URL + path, {
         headers: {
             'X-AUTH-USER': KIMAI_API_USER,
@@ -58,6 +57,17 @@ const postKimai = async (path,body) => {
 };
 
 /**
+ * get an array of all users that have settings in the DB. Used for Cron function.
+ */
+const getAllUsers = async () => {
+    try {
+        return await db.get('allUsers').value();    
+    } catch (e) {
+        console.dir(e);
+    }
+}
+
+/**
  * Get values from the JSON DB
  * @param {string} userId the user ID from LDAP
  * @param {string} key 
@@ -72,7 +82,7 @@ const getSettings = async (userId,key,id) => {
     }
 };
 /**
- * Set values in the JSON DB
+ * Set values in the JSON DB. Automatically saves the dbb value 'allUsers' as an array of all users available.
  * @param {*} userId the user ID coming from LDAP
  * @param {*} key 
  * @param {*} id 
@@ -80,6 +90,17 @@ const getSettings = async (userId,key,id) => {
  */
 const setSettings = async (userId,key,id,data) => {
     try{
+        const allUsers = await db.get('allUsers').value();
+        if(!allUsers) {
+            const users = []
+            users.push(userId)
+            await db.set('allUsers', users).write()
+        } else {
+            if(!allUsers.includes(userId)){
+                allUsers.push(userId)
+                await db.set('allUsers', allUsers).write()
+            }
+        }
         //await Parallel.each(project_details, async (proj) => db.set('projects.'+proj.id, proj).write(), 1);
         return await db.set(userId+'_'+key+'_'+id,data).write();
     } catch(e){
@@ -112,6 +133,7 @@ exports.fetchKimai = fetchKimai;
 exports.postKimai = postKimai;
 exports.getSettings = getSettings;
 exports.setSettings = setSettings;
+exports.getAllUsers = getAllUsers;
 
 exports.DEPRECATED_getAllProjectDetails = DEPRECATED_getAllProjectDetails;
 exports.DEPRECATED_getProjectDetailsById = DEPRECATED_getProjectDetailsById;

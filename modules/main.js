@@ -1,6 +1,5 @@
 import { makeStyles } from '@material-ui/core/styles';
 import { useState } from 'react';
-import Link from 'next/link';
 import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';

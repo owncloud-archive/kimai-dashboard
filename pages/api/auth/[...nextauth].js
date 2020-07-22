@@ -15,7 +15,8 @@ if (!baseDn) throw new Error('Base DN missing.')
 const ldapIdField = process.env.LDAP_MAPPING_UID || 'uid'
 const ldapNameField = process.env.LDAP_MAPPING_NAME || 'displayName'
 const ldapEmailField = process.env.LDAP_MAPPING_MAIL || 'mail'
-const ldapGroupField = process.env.LDAP_MAPPING_GROUP || 'ou'
+const ldapAdminUsername = process.env.LDAP_ADMIN_USERNAME || ''
+const ldapAdminPassword = process.env.LDAP_ADMIN_PASSWORD || ''
 
 const client = ldap.createClient({
   url
@@ -23,8 +24,8 @@ const client = ldap.createClient({
 
 const config = { url: url,
                baseDN: baseDn,
-               username: 'cn=admin,dc=planetexpress,dc=com',
-               password: 'GoodNewsEveryone' }
+               username: ldapAdminUsername,
+               password: ldapAdminPassword }
 const ad = new AD(config);
 
 
@@ -60,7 +61,6 @@ const options = {
             if (validLogIn){
               let result = await Search( username ).catch(error => console.error('Error searching for user in LDAP', error))
               let groupLookup = await ad.getGroupMembershipForUser(username).catch(error => console.error('Error getting groups in LDAP', error));
-              console.log(groupLookup);
               let groups = []
               if (groupLookup && groupLookup.length > 0){
                 groups = groupLookup.map((group) => group.cn)

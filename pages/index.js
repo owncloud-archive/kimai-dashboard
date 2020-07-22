@@ -10,15 +10,12 @@ const Home = () => (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Head>
-        <title>Owncloud Reporting Dashboard</title>
+        <title>Kimai Reporting Dashboard</title>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700&display=swap" />
         <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
         <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width" />
       </Head>
       <Main />
-      {/* <footer>
-        Owncloud Reporting Dashboard
-      </footer> */}
     </ThemeProvider>
   </div>
 )

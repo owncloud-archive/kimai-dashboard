@@ -24,6 +24,9 @@ SITE=
 # The URL of the LDAP(s) server
 LDAP_URL="ldap://localhost:389/"
 BASE_DN="ou=people,dc=planetexpress,dc=com"
+# Admin username used for searching groups (if needed)
+LDAP_ADMIN_USERNAME="cn=admin,dc=planetexpress,dc=com"
+LDAP_ADMIN_PASSWORD="GoodNewsEveryone"
 LDAP_MAPPING_UID="uid"
 LDAP_MAPPING_NAME="displayName"
 LDAP_MAPPING_MAIL="mail"

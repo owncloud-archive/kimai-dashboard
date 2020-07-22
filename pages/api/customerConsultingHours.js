@@ -49,4 +49,4 @@ export default withAuth( async (req, res) => {
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify({ message: e.message }));
     }
-});
+}, 'dashboard');

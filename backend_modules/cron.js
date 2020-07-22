@@ -12,7 +12,7 @@ const getMetaValue = (metaArray,key) => {
     return singleMeta ? singleMeta.value : undefined;
 };
 
-const getMonthlyBooked = async () => {
+const getMonthlyBooked = async (userId) => {
     let toDate = new Date();
     let fromDate = new Date(Date.now() - 31 * 24 * 60 * 60 * 1000);
     toDate = toDate.toJSON().substr(0,10);
@@ -33,7 +33,8 @@ const getMonthlyBooked = async () => {
         return a;
     },{});
 
-    let cron_users = await kimai.getSettings('users','cron');
+
+    let cron_users = await kimai.getSettings(userId, 'users','cron');
     let cron_users_ids = cron_users.filter(u=>u.included).map(u=>u.id);
     let booked_times = Object.values(total_spend_per_user)
         .filter(u => cron_users_ids.includes(u.id))
@@ -41,7 +42,7 @@ const getMonthlyBooked = async () => {
     return booked_times;
 };
 
-const getUnderbookedUsers = async () => {
+const getUnderbookedUsers = async (userId) => {
     let toDate = new Date();
     let fromDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
     toDate = toDate.toJSON().substr(0,10);
@@ -62,7 +63,7 @@ const getUnderbookedUsers = async () => {
         return a;
     },{});
 
-    let cron_users = await kimai.getSettings('users','cron');
+    let cron_users = await kimai.getSettings(userId, 'users','cron');
     let cron_users_ids = cron_users.filter(u=>u.included).map(u=>u.id);
     let booked_times = Object.values(total_spend_per_user)
         .filter(u => u.userTimeTotalSpend < 20 * 60 * 60) // 20h
@@ -127,7 +128,7 @@ const SMTP_FROM_MAIL = process.env.SMTP_FROM_MAIL;
 assert(SMTP_USER, "env var SMTP_USER not set");
 assert(SMTP_PASS, "env var SMTP_PASS not set");
 assert(SMTP_FROM_MAIL, "env var SMTP_FROM_MAIL not set");
-const sendMail = async (subject, text, html) => {
+const sendMail = async (userId, subject, text, html) => {
     const mail = nodemailer.createTransport({
         host: process.env.SMTP_HOST || "smtp.mailgun.org",
         port: Number(process.env.SMTP_PORT) || 456,
@@ -139,7 +140,7 @@ const sendMail = async (subject, text, html) => {
     });
 
     // send mail with defined transport object
-    let reportEmails = await kimai.getSettings('reportEmails','reportEmails');
+    let reportEmails = await kimai.getSettings(userId, 'reportEmails','reportEmails');
     if(!reportEmails || (reportEmails && reportEmails.length===0)) {
         console.warn("WARNING: no emails specified");
         return;
@@ -157,103 +158,116 @@ const sendMail = async (subject, text, html) => {
 
 const registerJobs = async () => {
     
+    const users = await kimai.getAllUsers()
+    
+    for (const user of users){
+        console.log("register critical projects job at: 0 0 0 * * *  for user", user);
+        new CronJob('0 0 0 * * *', async () => { //every 1 day
+            // Everyday a cronjob is checking if 
+            // projektbudget – booked time < 80% -> Mail to dlindner@owncloud.com and john@owncloud.com
+            const critical_budgets = await getCriticalProjects();
+            console.log("sending critical budget report with ",critical_budgets.length,"critical projects");
+            let email_txt = `
+    Here is your daily report of projects with critical time budgets (total time booked / project budget >= 80%):
+    
+    Percent booked:  Total time booked:  Project budget:  Name:\n`;
+            let email_html = `
+            <p>Here is your daily report of projects with critical time budgets (total time booked / project budget >= 80%):</p>
+            
+            <table>
+            <tr>
+                <th>Name</th>
+                <th>Total time booked</th>
+                <th>Project budget</th>
+                <th>Percent booked</th>
+            </tr>`;
+            critical_budgets.forEach((proj)=>{
+                const percent = (proj.projectTimeTotalSpend/proj.projectTimeBudget*100).toFixed(2).padStart("Percent booked".length, " ");
+                const total = formatSeconds(proj.projectTimeTotalSpend).padStart("Total time booked".length, " ");
+                const budget = formatSeconds(proj.projectTimeBudget).padStart("Project budget".length, " ");
+                email_txt += `${percent}%  ${total}h  ${budget}h  ${proj.projectName}\n`;
+                email_html += `<tr><td>${proj.projectName}</td><td>${total}h</td><td>${budget}h</td><td>${percent}%</td></tr>`;
+            });
+            email_html += `</table>`;
+            const res = await sendMail(user, "Projects with critical time budget - "+new Date().toJSON().substr(0,10),email_txt,email_html);
+            console.log("report email accepted by",res.accepted,"status:",res.response);
+        }).start();
 
-    console.log("register critical projects job at: 0 0 0 * * *");
-    new CronJob('0 0 0 * * *', async () => { //every 1 day
-        // Everyday a cronjob is checking if 
-        // projektbudget – booked time < 80% -> Mail to dlindner@owncloud.com and john@owncloud.com
-        const critical_budgets = await getCriticalProjects();
-        console.log("sending critical budget report with ",critical_budgets.length,"critical projects");
-        let email_txt = `
-Here is your daily report of projects with critical time budgets (total time booked / project budget >= 80%):
+    }
 
-Percent booked:  Total time booked:  Project budget:  Name:\n`;
-        let email_html = `
-        <p>Here is your daily report of projects with critical time budgets (total time booked / project budget >= 80%):</p>
+
+    for (const user of users){
+        console.log("register underbooked users job at: 0 0 12 * * 5  for user", user);
+        new CronJob('0 0 12 * * 5', async () => { //every Friday, (friday is 5)
+            // new CronJob('0 24 11 * * *', async () => { //every Friday, (friday is 5)
+                // There is a cronjob every week Friday 12:00 and check if every person from our team booked minimum 20h – if not it sends me a Mail with name and hours - dlindner@owncloud.com example: Martin 16h (please do a config.txt so i can add people)
+                const underbooked_users = await getUnderbookedUsers(user);
+                if(underbooked_users.length === 0) {
+                    console.warn("no underbooked users");
+                    return;
+                }
+                console.log("sending underbooked users report with ",underbooked_users.length,"underbooked users");
+                let email_txt = `
+        Here is your weekly report of underbooked users (team members with less than 20h booked):
         
-        <table>
-        <tr>
-            <th>Name</th>
-            <th>Total time booked</th>
-            <th>Project budget</th>
-            <th>Percent booked</th>
-        </tr>`;
-        critical_budgets.forEach((proj)=>{
-            const percent = (proj.projectTimeTotalSpend/proj.projectTimeBudget*100).toFixed(2).padStart("Percent booked".length, " ");
-            const total = formatSeconds(proj.projectTimeTotalSpend).padStart("Total time booked".length, " ");
-            const budget = formatSeconds(proj.projectTimeBudget).padStart("Project budget".length, " ");
-            email_txt += `${percent}%  ${total}h  ${budget}h  ${proj.projectName}\n`;
-            email_html += `<tr><td>${proj.projectName}</td><td>${total}h</td><td>${budget}h</td><td>${percent}%</td></tr>`;
-        });
-        email_html += `</table>`;
-        const res = await sendMail("Projects with critical time budget - "+new Date().toJSON().substr(0,10),email_txt,email_html);
-        console.log("report email accepted by",res.accepted,"status:",res.response);
-    }).start();
+        Alias:         Username:       Booked time:\n`;
+                let email_html = `
+                <p>Here is your weekly report of underbooked users (team members with less than 20h booked):</p>
+                
+                <table>
+                <tr>
+                    <th>Alias</th>
+                    <th>Username</th>
+                    <th>Booked time</th>
+                </tr>`;
+                underbooked_users.forEach((u)=>{
+                    const total = formatSeconds(u.userTimeTotalSpend);
+                    email_txt += `${u.alias.padEnd("Alias:         ".length, " ")}  ${u.username.padEnd("Username:       ".length, " ")}  ${total}h\n`;
+                    email_html += `<tr><td>${u.alias}</td><td>${u.username}</td><td>${total}h</td></tr>`;
+                });
+                email_html += `</table>`;
+                const res = await sendMail("Underbooked users report for - "+new Date().toJSON().substr(0,10),email_txt,email_html);
+                console.log("report email accepted by",res.accepted,"status:",res.response);
+            }).start();
 
-    console.log("register underbooked users job at: 0 0 12 * * 5");
-    new CronJob('0 0 12 * * 5', async () => { //every Friday, (friday is 5)
-    // new CronJob('0 24 11 * * *', async () => { //every Friday, (friday is 5)
-        // There is a cronjob every week Friday 12:00 and check if every person from our team booked minimum 20h – if not it sends me a Mail with name and hours - dlindner@owncloud.com example: Martin 16h (please do a config.txt so i can add people)
-        const underbooked_users = await getUnderbookedUsers();
-        if(underbooked_users.length === 0) {
-            console.warn("no underbooked users");
-            return;
-        }
-        console.log("sending underbooked users report with ",underbooked_users.length,"underbooked users");
-        let email_txt = `
-Here is your weekly report of underbooked users (team members with less than 20h booked):
+    }
 
-Alias:         Username:       Booked time:\n`;
-        let email_html = `
-        <p>Here is your weekly report of underbooked users (team members with less than 20h booked):</p>
+    for (const user of users){
+        console.log("monthly user report job at: 0 0 0 1 * *  for user", user);
+        new CronJob('0 0 0 1 * *', async () => { //every month on the first
+            // new CronJob('0 36 11 * * *', async () => { //every month on the first
+                // There is a cronjob every month tells me via Mail which person booked how much hours - dlindner@owncloud.com - Example Kevin 160h, David 180h (please do a config.txt so i can add people) -> Team auswählen für Cronjob, für beide cronjobs das gleiche
+                const monthly_booked = await getMonthlyBooked(user);
+                if(monthly_booked.length === 0) {
+                    console.warn("no underbooked users");
+                    return;
+                }
+                console.log("sending team member report with ",monthly_booked.length,"team members");
+                let email_txt = `
+        Here is your weekly report of underbooked users (team members with less than 20h booked):
         
-        <table>
-        <tr>
-            <th>Alias</th>
-            <th>Username</th>
-            <th>Booked time</th>
-        </tr>`;
-        underbooked_users.forEach((u)=>{
-            const total = formatSeconds(u.userTimeTotalSpend);
-            email_txt += `${u.alias.padEnd("Alias:         ".length, " ")}  ${u.username.padEnd("Username:       ".length, " ")}  ${total}h\n`;
-            email_html += `<tr><td>${u.alias}</td><td>${u.username}</td><td>${total}h</td></tr>`;
-        });
-        email_html += `</table>`;
-        const res = await sendMail("Underbooked users report for - "+new Date().toJSON().substr(0,10),email_txt,email_html);
-        console.log("report email accepted by",res.accepted,"status:",res.response);
-    }).start();
-    console.log("monthly user report job at: 0 0 0 1 * *");
-    new CronJob('0 0 0 1 * *', async () => { //every month on the first
-    // new CronJob('0 36 11 * * *', async () => { //every month on the first
-        // There is a cronjob every month tells me via Mail which person booked how much hours - dlindner@owncloud.com - Example Kevin 160h, David 180h (please do a config.txt so i can add people) -> Team auswählen für Cronjob, für beide cronjobs das gleiche
-        const monthly_booked = await getMonthlyBooked();
-        if(monthly_booked.length === 0) {
-            console.warn("no underbooked users");
-            return;
-        }
-        console.log("sending team member report with ",monthly_booked.length,"team members");
-        let email_txt = `
-Here is your weekly report of underbooked users (team members with less than 20h booked):
+        Alias:         Username:       Booked time:\n`;
+                let email_html = `
+                <p>Here is your monthly report of booked hours per team member:</p>
+                
+                <table>
+                <tr>
+                    <th>Alias</th>
+                    <th>Username</th>
+                    <th>Booked time</th>
+                </tr>`;
+                monthly_booked.forEach((u)=>{
+                    const total = formatSeconds(u.userTimeTotalSpend);
+                    email_txt += `${u.alias.padEnd("Alias:         ".length, " ")}  ${u.username.padEnd("Username:       ".length, " ")}  ${total}h\n`;
+                    email_html += `<tr><td>${u.alias}</td><td>${u.username}</td><td>${total}h</td></tr>`;
+                });
+                email_html += `</table>`;
+                const res = await sendMail("Monthly booked per team member report - "+new Date().toJSON().substr(0,10),email_txt,email_html);
+                console.log("report email accepted by",res.accepted,"status:",res.response);
+        }).start();
 
-Alias:         Username:       Booked time:\n`;
-        let email_html = `
-        <p>Here is your monthly report of booked hours per team member:</p>
-        
-        <table>
-        <tr>
-            <th>Alias</th>
-            <th>Username</th>
-            <th>Booked time</th>
-        </tr>`;
-        monthly_booked.forEach((u)=>{
-            const total = formatSeconds(u.userTimeTotalSpend);
-            email_txt += `${u.alias.padEnd("Alias:         ".length, " ")}  ${u.username.padEnd("Username:       ".length, " ")}  ${total}h\n`;
-            email_html += `<tr><td>${u.alias}</td><td>${u.username}</td><td>${total}h</td></tr>`;
-        });
-        email_html += `</table>`;
-        const res = await sendMail("Monthly booked per team member report - "+new Date().toJSON().substr(0,10),email_txt,email_html);
-        console.log("report email accepted by",res.accepted,"status:",res.response);
-    }).start();
+    }
+
 };
 exports.registerJobs = registerJobs;
 
