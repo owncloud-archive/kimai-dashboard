@@ -4,17 +4,17 @@ import { withAuth } from '../../../modules/withAuth'
 
 export default withAuth(async (req, res) => {
     
-    const userEmail = req.auth.user.email
+    const userId = req.auth.user.id
     
     try{
         if (req.method === 'POST') {
             
-            await kimai.setSettings(userEmail, 'reportEmails','reportEmails',req.body); //save email to localdb
+            await kimai.setSettings(userId, 'reportEmails','reportEmails',req.body); //save email to localdb
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify({status:'ok'}));
         } else {
-            let reportEmails = await kimai.getSettings(userEmail, 'reportEmails','reportEmails');
+            let reportEmails = await kimai.getSettings(userId, 'reportEmails','reportEmails');
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify(reportEmails || []));

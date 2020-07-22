@@ -11,7 +11,6 @@ import { Typography } from '@material-ui/core';
 
 async function fetcher(path) {
     const res = await fetch(path);
-    console.log(res);
     const json = await res.json();
     return json;
 }
@@ -30,7 +29,6 @@ const ImportedData = ({ fromDate, toDate, type }) => {
     let finalData = data.filter(row => new Date(row.date) >= newFromDate && new Date(row.date) <= toDate);
     finalData = finalData.sort((a,b) => new Date(a.date)-new Date(b.date));
 
-    console.log("finalData",finalData)
     return (
         <div>
             <Typography>from {newFromDate.toJSON().substr(0,10)} till {toDate.toJSON().substr(0,10)}</Typography><br/>

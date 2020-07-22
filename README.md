@@ -3,7 +3,7 @@
 [![Build Status](https://drone.owncloud.com/api/badges/owncloud/kimai-dashboard/status.svg)](https://drone.owncloud.com/owncloud/kimai-dashboard/)
 [![Docker Hub](https://img.shields.io/badge/docker-latest-blue.svg?logo=docker&logoColor=white)](https://hub.docker.com/r/owncloudops/kimai-dashboard)
 
-This is a custom extension for Kimai written in Node.js which provides a reprting dashboard and a custom time booking interface.
+This is a custom extension for Kimai written in Node.js which provides a reporting dashboard and a custom time booking interface.
 
 ## Environment variables
 
@@ -24,6 +24,11 @@ SITE=
 # The URL of the LDAP(s) server
 LDAP_URL="ldap://localhost:389/"
 BASE_DN="ou=people,dc=planetexpress,dc=com"
+LDAP_MAPPING_UID="uid"
+LDAP_MAPPING_NAME="displayName"
+LDAP_MAPPING_MAIL="mail"
+JWT_SECRET="ewrgw3456746hwrth35678356jh"
+LDAP_MAPPING_GROUP="ou"
 ```
 
 ## Build the docker container

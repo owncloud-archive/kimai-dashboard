@@ -15,7 +15,7 @@ export default withAuth( async (req, res) => {
 
         let timesheets = await kimai.fetchKimai('/api/timesheets?user=all&size='+MAX_TIMESHEET_AMOUNT+'&begin='+fromDate+'T01:01:01&end='+toDate+'T23:59:59&full=true');
         if(timesheets.length > (MAX_TIMESHEET_AMOUNT-1))  throw new Error("Input Date range to large.");
-        const cron_users = await kimai.getSettings(req.auth.user.email, 'users','cron');
+        const cron_users = await kimai.getSettings(req.auth.user.id, 'users','cron');
         if(!cron_users) throw new Error("No cron users exist. Update user list in settings page.");
         const cron_ids = cron_users.filter(u=>u.included).map(u=>u.id);
         // console.log(cron_ids);

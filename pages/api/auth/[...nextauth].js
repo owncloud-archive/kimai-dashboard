@@ -8,6 +8,10 @@ const url = process.env.LDAP_URL
 if (!url) throw new Error('LDAP URL missing. Add it via env variables')
 const baseDn = process.env.BASE_DN
 if (!baseDn) throw new Error('Base DN missing.')
+const ldapIdField = process.env.LDAP_MAPPING_UID || 'uid'
+const ldapNameField = process.env.LDAP_MAPPING_NAME || 'displayName'
+const ldapEmailField = process.env.LDAP_MAPPING_MAIL || 'mail'
+const ldapGroupField = process.env.LDAP_MAPPING_GROUP || 'ou'
 
 const client = ldap.createClient({
   url
@@ -16,7 +20,14 @@ const client = ldap.createClient({
 
 const options = {
     site: process.env.SITE || 'http://localhost:3000',
-  
+    secret: process.env.JWT_SECRET,
+    session: {
+      jwt: true,
+      secret: process.env.JWT_SECRET
+    },
+    jwt: {
+
+    },
     providers: [
         Providers.Credentials({
           // The name to display on the sign in form (e.g. 'Sign in with...')
@@ -37,7 +48,7 @@ const options = {
             let validLogIn = await Bind(username, credentials.password).catch(error =>  console.error('Bind not succesful', error))
             if (validLogIn){
               let result = await Search( username ).catch(error => console.error('Error searching for user in LDAP', error))
-              if (result) user = { id: result.uid, name: result.displayName, email: result.mail }
+              if (result) user = { id: result[ldapIdField], name: result[ldapNameField], email: result[ldapEmailField], group: result[ldapGroupField] }
             }
       
       

@@ -8,7 +8,7 @@ export default withAuth( async (req, res) => {
         if (req.method === 'POST') {
             const { body,query } = req;
 
-            await kimai.setSettings(req.auth.user.email, 'users',query.id,body);
+            await kimai.setSettings(req.auth.user.id, 'users',query.id,body);
 
             //save stuff to localdb
             res.statusCode = 200;

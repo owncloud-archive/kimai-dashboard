@@ -8,14 +8,14 @@ export default withAuth( async (req, res) => {
         if (req.method === 'POST') {
             const { body } = req;
             const { type } = req.query
-            await kimai.setSettings(req.auth.user.email, 'import', type+'_values',body);
+            await kimai.setSettings(req.auth.user.id, 'import', type+'_values',body);
             //save stuff to localdb
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify({status:'ok'}));
         } else {
             const { type } = req.query
-            let import_values = await kimai.getSettings(req.auth.user.email, 'import',type+'_values');
+            let import_values = await kimai.getSettings(req.auth.user.id, 'import',type+'_values');
             // console.log(import_values);
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');

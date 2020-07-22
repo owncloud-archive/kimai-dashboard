@@ -9,9 +9,7 @@ import { Typography } from '@material-ui/core';
 
 async function fetcher(path, fromDate, toDate) {
     const query = querystring.stringify({fromDate:fromDate.toJSON().substr(0,10), toDate:toDate.toJSON().substr(0,10)});
-    console.log("querry",query);
     const res = await fetch(path+'?'+query);
-    console.log(res);
     const json = await res.json();
     return json;
 }
