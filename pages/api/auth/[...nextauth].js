@@ -1,11 +1,8 @@
 import NextAuth from 'next-auth'
 import Providers from 'next-auth/providers'
 import ldap from 'ldapjs'
-import { getLocationOrigin } from 'next/dist/next-server/lib/utils';
 
 const AD = require('activedirectory2').promiseWrapper;
-
-
 
 
 const url = process.env.LDAP_URL
@@ -17,6 +14,8 @@ const ldapNameField = process.env.LDAP_MAPPING_NAME || 'displayName'
 const ldapEmailField = process.env.LDAP_MAPPING_MAIL || 'mail'
 const ldapAdminUsername = process.env.LDAP_ADMIN_USERNAME || ''
 const ldapAdminPassword = process.env.LDAP_ADMIN_PASSWORD || ''
+
+const site = process.env.SITE || 'http://localhost:3000'
 
 const client = ldap.createClient({
   url
@@ -30,15 +29,15 @@ const ad = new AD(config);
 
 
 const options = {
-    site: process.env.SITE || 'http://localhost:3000',
+    site,
     secret: process.env.JWT_SECRET,
     session: {
       jwt: true,
       secret: process.env.JWT_SECRET
     },
     jwt: {
-
     },
+    debug: true,
     providers: [
         Providers.Credentials({
           // The name to display on the sign in form (e.g. 'Sign in with...')

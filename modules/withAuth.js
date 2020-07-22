@@ -1,5 +1,7 @@
-import { getSession } from 'next-auth/client';
+import { getSession, setOptions } from 'next-auth/client';
 import jwt from 'next-auth/jwt';
+
+setOptions({ site: process.env.SITE })
 
 const secret = process.env.JWT_SECRET
 const dashboardGroup = process.env.AUTH_GROUPS_DASHBOARD

@@ -158,7 +158,7 @@ const sendMail = async (userId, subject, text, html) => {
 
 const registerJobs = async () => {
     
-    const users = await kimai.getAllUsers()
+    const users = await kimai.getAllUsers() || []
     
     for (const user of users){
         console.log("register critical projects job at: 0 0 0 * * *  for user", user);

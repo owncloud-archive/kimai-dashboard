@@ -5,6 +5,7 @@ LABEL maintainer="ownCloud GmbH <devops@owncloud.com>" \
     org.label-schema.vendor="ownCloud GmbH" \
     org.label-schema.schema-version="1.0"
 
+ARG NEXT_PUBLIC_SITE
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NO_UPDATE_NOTIFIER=true
 ENV NODE_ENV=production

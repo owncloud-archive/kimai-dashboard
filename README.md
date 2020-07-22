@@ -20,7 +20,8 @@ SMTP_FROM_MAIL=
 SMTP_USER=
 SMTP_PASS=
 # the URL where the dashboard is deployed (e.g. https://dashboard.example.com)
-SITE=
+SITE="http://localhost:3000"
+NEXT_PUBLIC_SITE="http://localhost:3000"
 # The URL of the LDAP(s) server
 LDAP_URL="ldap://localhost:389/"
 BASE_DN="ou=people,dc=planetexpress,dc=com"
@@ -39,12 +40,8 @@ AUTH_GROUPS_BOOKING="Office Management,Staff"
 
 ## Build the docker container
 
-When using helm to deploy the dashboard to Kubernetes, you need to match the container version with the appVersion of the Helm chart.
-
 ```Shell
-cat deployment/Chart.yaml | grep appVersion
-# increase app Version in `Chart.yaml` and `package.json` based on semver versioning
-docker build -t kimai-dashboard:0.2.7 .
+docker build -t kimai-dashboard:0.2.7 --build-arg NEXT_PUBLIC_SITE=http://localhost:3000 .
 ```
 
 ## Deploy to kubernetes with helm
