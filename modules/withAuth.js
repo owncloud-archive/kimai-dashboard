@@ -9,7 +9,7 @@ const dashboardGroup = process.env.AUTH_GROUPS_DASHBOARD
 export const withAuth = (apiHandler, page) => {
     return async (req, res) => {
         const user = await getSession({ req })
-        const token = await jwt.getJwt({ req, secret })
+        const token = await jwt.getToken({ req, secret })
         if (dashboardGroup && page === 'dashboard' && token){
             const validGroups = process.env.AUTH_GROUPS_DASHBOARD.split(',')
             const found = validGroups.some((r) => token.user.groups.includes(r))

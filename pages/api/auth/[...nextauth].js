@@ -1,8 +1,7 @@
 import NextAuth from 'next-auth'
 import Providers from 'next-auth/providers'
-import ldap from 'ldapjs'
+import { authenticate } from '@trieb.work/ldap-authentication';
 
-const AD = require('activedirectory2').promiseWrapper;
 
 
 const url = process.env.LDAP_URL
@@ -12,24 +11,12 @@ if (!baseDn) throw new Error('Base DN missing.')
 const ldapIdField = process.env.LDAP_MAPPING_UID || 'uid'
 const ldapNameField = process.env.LDAP_MAPPING_NAME || 'displayName'
 const ldapEmailField = process.env.LDAP_MAPPING_MAIL || 'mail'
-const ldapAdminUsername = process.env.LDAP_ADMIN_USERNAME || ''
-const ldapAdminPassword = process.env.LDAP_ADMIN_PASSWORD || ''
-
-const site = process.env.SITE || 'http://localhost:3000'
-
-const client = ldap.createClient({
-  url
-})
-
-const config = { url: url,
-               baseDN: baseDn,
-               username: ldapAdminUsername,
-               password: ldapAdminPassword }
-const ad = new AD(config);
-
+const ldapAdminUsername = process.env.LDAP_ADMIN_USERNAME || 'cn=admin,dc=planetexpress,dc=com'
+const ldapAdminPassword = process.env.LDAP_ADMIN_PASSWORD || 'GoodNewsEveryone'
+const ldapGroupsSearchBase = process.env.LDAP_GROUPS_SEARCH_BASE || 'ou=people,dc=planetexpress,dc=com'
+const ldapGroupObjectClass = process.env.LDAP_GROUPS_OBJECT_CLASS || 'Group'
 
 const options = {
-    site,
     secret: process.env.JWT_SECRET,
     session: {
       jwt: true,
@@ -38,13 +25,19 @@ const options = {
     jwt: {
     },
     debug: true,
+    callbacks: {
+      // adding the userId to the JWT token on login
+      jwt: async (token, user) => {
+        if(user && user.id) token.user = { id : user.id, groups: user.groups || [] };
+        return Promise.resolve(token)
+      }
+    },
     providers: [
         Providers.Credentials({
+          id: 'LDAP-Login',
           // The name to display on the sign in form (e.g. 'Sign in with...')
           name: 'LDAP',
           // The credentials is used to generate a suitable form on the sign in page.
-          // You can specify whatever fields you are expecting to be submitted.
-          // e.g. domain, username, password, 2FA token, etc.
           credentials: {
             username: { label: "Username", type: "text", placeholder: "jsmith" },
             password: {  label: "Password", type: "password" }
@@ -53,25 +46,30 @@ const options = {
         
             let user = null
 
-          
-            let username = `cn=${credentials.username},${baseDn}`
-            const validLogIn = await ad.authenticate(username, credentials.password).catch(error => console.error('AD error', error))
-            //let validLogIn = await Bind(username, credentials.password).catch(error =>  console.error('Bind not succesful', error))
-            if (validLogIn){
-              let result = await Search( username ).catch(error => console.error('Error searching for user in LDAP', error))
-              let groupLookup = await ad.getGroupMembershipForUser(username).catch(error => console.error('Error getting groups in LDAP', error));
-              let groups = []
-              if (groupLookup && groupLookup.length > 0){
-                groups = groupLookup.map((group) => group.cn)
-              }
-              if (result) user = { id: result[ldapIdField], name: result[ldapNameField] || result['givenName'], email: result[ldapEmailField], groups }
-            } else {
-              console.log('login for', username, 'not successful')
+            const LDAPoptions = {
+              ldapOpts: {
+                url: url,
+                // tlsOptions: { rejectUnauthorized: false }
+              },
+              adminDn: ldapAdminUsername,
+              adminPassword: ldapAdminPassword,
+              userPassword: credentials.password,
+              userSearchBase: baseDn,
+              usernameAttribute: ldapIdField,
+              username: credentials.username,
+              groupsSearchBase: ldapGroupsSearchBase,
+              groupClass: ldapGroupObjectClass
+            }
+  
+            // Authenticate with the LDAP Server
+            const LDAPUserObject = await authenticate(LDAPoptions).catch(e => console.log(e))
+            delete LDAPUserObject.jpegPhoto
+            if (LDAPUserObject) {
+              const groups = LDAPUserObject.groups.map((group) => group.cn);
+              user = { id: LDAPUserObject[ldapIdField], name: LDAPUserObject[ldapNameField] || LDAPUserObject['givenName'], email: LDAPUserObject[ldapEmailField], groups }
             }
       
-      
             if (user) {
-              // Any object returned will be saved in `user` property of the JWT
               return Promise.resolve(user)
             } else {
               // If you return null or false then the credentials will be rejected
@@ -84,25 +82,3 @@ const options = {
 }
   
 export default (req, res) => NextAuth(req, res, options)
-
-async function Bind(username, password){
-  return new Promise((resolve, reject) => {
-    client.bind(username, password, (err) => {
-      if (err) reject(new Error(err))
-      resolve(true)
-    })
-  })
-}
-
-
-async function Search(search) {
-  return new Promise((resolve, reject) => {
-    client.search(search, (err, res) =>{
-      if (err) reject(new Error(err))
-      res.on('searchEntry', (entry) => {
-        resolve(entry.object)
-      })
-    })
-
-  })
-}
