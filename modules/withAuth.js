@@ -5,6 +5,7 @@ setOptions({ site: process.env.SITE })
 
 const secret = process.env.JWT_SECRET
 const dashboardGroup = process.env.AUTH_GROUPS_DASHBOARD
+if (!dashboardGroup) console.warn('No AUTH_GROUPS_DASHBOARD configured. All user groups have access now!')
 
 export const withAuth = (apiHandler, page) => {
     return async (req, res) => {

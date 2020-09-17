@@ -8,13 +8,15 @@ const url = process.env.LDAP_URL
 if (!url) throw new Error('LDAP URL missing. Add it via env variables')
 const baseDn = process.env.BASE_DN
 if (!baseDn) throw new Error('Base DN missing.')
-const ldapIdField = process.env.LDAP_MAPPING_UID || 'uid'
-const ldapNameField = process.env.LDAP_MAPPING_NAME || 'displayName'
-const ldapEmailField = process.env.LDAP_MAPPING_MAIL || 'mail'
-const ldapAdminUsername = process.env.LDAP_ADMIN_USERNAME || 'cn=admin,dc=planetexpress,dc=com'
-const ldapAdminPassword = process.env.LDAP_ADMIN_PASSWORD || 'GoodNewsEveryone'
-const ldapGroupsSearchBase = process.env.LDAP_GROUPS_SEARCH_BASE || 'ou=people,dc=planetexpress,dc=com'
-const ldapGroupObjectClass = process.env.LDAP_GROUPS_OBJECT_CLASS || 'Group'
+const ldapIdField = process.env.LDAP_MAPPING_UID
+const ldapNameField = process.env.LDAP_MAPPING_NAME
+const ldapEmailField = process.env.LDAP_MAPPING_MAIL
+const ldapAdminUsername = process.env.LDAP_ADMIN_USERNAME
+const ldapAdminPassword = process.env.LDAP_ADMIN_PASSWORD
+const ldapGroupsSearchBase = process.env.LDAP_GROUPS_SEARCH_BASE
+const ldapGroupObjectClass = process.env.LDAP_GROUPS_OBJECT_CLASS
+
+if(!ldapAdminUsername) throw new Error('Please add an LDAP admin user.')
 
 const options = {
     secret: process.env.JWT_SECRET,
@@ -24,7 +26,6 @@ const options = {
     },
     jwt: {
     },
-    debug: true,
     callbacks: {
       // adding the userId to the JWT token on login
       jwt: async (token, user) => {
@@ -46,28 +47,34 @@ const options = {
         
             let user = null
 
-            const LDAPoptions = {
-              ldapOpts: {
-                url: url,
-                // tlsOptions: { rejectUnauthorized: false }
-              },
-              adminDn: ldapAdminUsername,
-              adminPassword: ldapAdminPassword,
-              userPassword: credentials.password,
-              userSearchBase: baseDn,
-              usernameAttribute: ldapIdField,
-              username: credentials.username,
-              groupsSearchBase: ldapGroupsSearchBase,
-              groupClass: ldapGroupObjectClass
+            try {
+              const LDAPoptions = {
+                ldapOpts: {
+                  url: url,
+                  // tlsOptions: { rejectUnauthorized: false }
+                },
+                adminDn: ldapAdminUsername,
+                adminPassword: ldapAdminPassword,
+                userPassword: credentials.password,
+                userSearchBase: baseDn,
+                usernameAttribute: ldapIdField,
+                username: credentials.username,
+                groupsSearchBase: ldapGroupsSearchBase,
+                groupClass: ldapGroupObjectClass
+              }
+              
+              // Authenticate with the LDAP Server
+              const LDAPUserObject = await authenticate(LDAPoptions).catch(e => console.log(e))
+              if (LDAPUserObject) {
+                const groups = LDAPUserObject.groups.map((group) => group.cn);
+                user = { id: LDAPUserObject[ldapIdField], name: LDAPUserObject[ldapNameField] || LDAPUserObject['givenName'], email: LDAPUserObject[ldapEmailField], groups }
+              }
+              
+            } catch (error) {
+              console.error(error)
+              return Promise.reject(new Error('There was an error in the application. Check the server logs'))
             }
-  
-            // Authenticate with the LDAP Server
-            const LDAPUserObject = await authenticate(LDAPoptions).catch(e => console.log(e))
-            delete LDAPUserObject.jpegPhoto
-            if (LDAPUserObject) {
-              const groups = LDAPUserObject.groups.map((group) => group.cn);
-              user = { id: LDAPUserObject[ldapIdField], name: LDAPUserObject[ldapNameField] || LDAPUserObject['givenName'], email: LDAPUserObject[ldapEmailField], groups }
-            }
+
       
             if (user) {
               return Promise.resolve(user)

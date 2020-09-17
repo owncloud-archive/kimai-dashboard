@@ -11,7 +11,7 @@ export default withAuth( async (req, res) => {
             return res.status(403).json({ message: 'You are not in the correct group to access time booking.' })
         }
     } else {
-        console.log('No allowed user groups for the booking page defined. Allowing all groups now!')
+        console.warn('No allowed user groups for the booking page defined. Allowing all groups now!')
     }
     try{
         if (req.method === 'POST') {
