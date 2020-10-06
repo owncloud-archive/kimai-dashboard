@@ -4,6 +4,15 @@ import { withAuth } from '../../modules/withAuth'
 
 
 export default withAuth( async (req, res) => {
+    if (process.env.AUTH_GROUPS_IMPORT) {
+        const validGroups = process.env.AUTH_GROUPS_IMPORT.split(',')
+        const found = validGroups.some((r) => req.auth.user.groups.includes(r))
+        if (!found){
+            return res.status(403).json({ message: 'You are not in the correct group to access import page.' })
+        }
+    } else {
+        console.warn('No allowed user groups for the import page defined. Allowing all groups now!')
+    }
     try{
         if (req.method === 'POST') {
             const { body } = req;
