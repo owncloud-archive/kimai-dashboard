@@ -22,7 +22,7 @@ import PostAddIcon from '@material-ui/icons/PostAdd';
 // import Autocomplete from '@material-ui/lab/Autocomplete';
 import { useRouter } from 'next/router'
 
-import { useSession } from 'next-auth/client'
+import { useSession, signIn, signOut } from 'next-auth/client'
 
 
 //import icons
@@ -145,12 +145,12 @@ const Main = (props) => {
                             </IconButton>
                         </Tooltip>
                         {!loading && session && <Tooltip title={`Logout user ${session.user.name}`}>
-                            <IconButton aria-label="logout" className={classes.iconmenupoint_logout} onClick={() => router.push('/api/auth/signout')}>
+                            <IconButton aria-label="logout" className={classes.iconmenupoint_logout} onClick={signOut}>
                                 <ExitToAppIcon />
                             </IconButton>    
                         </Tooltip>}
                         {!loading && !session && <Tooltip title="Sign In">
-                            <IconButton aria-label="signin" className={classes.iconmenupoint_logout} onClick={() => router.push('/api/auth/signin')}>
+                            <IconButton aria-label="signin" className={classes.iconmenupoint_logout} onClick={signIn}>
                                 <ExitToAppIcon />
                             </IconButton>    
                         </Tooltip>}
