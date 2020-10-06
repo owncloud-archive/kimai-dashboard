@@ -1,9 +1,11 @@
 // const Parallel = require('async-parallel');
 const kimai = require('../../backend_modules/kimai');
+import { withAuth } from '../../modules/withAuth'
+
 
 const MAX_TIMESHEET_AMOUNT = 20000;
 
-export default async (req, res) => {
+export default withAuth( async (req, res) => {
     const { query: { fromDate, toDate } } = req;
     try{
         //check inputs,
@@ -13,7 +15,7 @@ export default async (req, res) => {
 
         let timesheets = await kimai.fetchKimai('/api/timesheets?user=all&size='+MAX_TIMESHEET_AMOUNT+'&begin='+fromDate+'T01:01:01&end='+toDate+'T23:59:59&full=true');
         if(timesheets.length > (MAX_TIMESHEET_AMOUNT-1))  throw new Error("input Date range to large");
-        const engineer_users = await kimai.getSettings('users','engineer');
+        const engineer_users = await kimai.getSettings(req.auth.user.id, 'users','engineer');
         if(!engineer_users) throw new Error("No engineer users exist. Update user list in settings page.");
         const engineer_ids = engineer_users.filter(u=>u.included).map(u=>u.id);
         // console.log(engineer_ids);
@@ -44,4 +46,4 @@ export default async (req, res) => {
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify({ message: e.message }));
     }
-};
+}, 'dashboard');

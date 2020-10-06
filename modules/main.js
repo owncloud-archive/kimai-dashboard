@@ -1,12 +1,12 @@
 import { makeStyles } from '@material-ui/core/styles';
 import { useState } from 'react';
-import Link from 'next/link';
 import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import AccessTimeIcon from '@material-ui/icons/AccessTime';
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import Paper from '@material-ui/core/Paper';
 import {
     MuiPickersUtilsProvider,
@@ -21,6 +21,8 @@ import SettingsIcon from '@material-ui/icons/Settings';
 import PostAddIcon from '@material-ui/icons/PostAdd';
 // import Autocomplete from '@material-ui/lab/Autocomplete';
 import { useRouter } from 'next/router'
+
+import { useSession, signIn, signOut } from 'next-auth/client'
 
 
 //import icons
@@ -57,21 +59,28 @@ const useStyles = makeStyles(theme => ({
         cursor:'pointer',
         position:"absolute",
         color:"white",
-        right:'100px',
+        right:'140px',
         '&:hover': { opacity:0.8 },
     },
     iconmenupoint: {
         cursor:'pointer',
         position:"absolute",
         color:"white",
-        right:'20px',
+        right:'60px',
         '&:hover': { opacity:0.8 },
     },
     iconmenupoint_import: {
         cursor:'pointer',
         position:"absolute",
         color:"white",
-        right:'60px',
+        right:'100px',
+        '&:hover': { opacity:0.8 },
+    },
+    iconmenupoint_logout: {
+        cursor:'pointer',
+        position:"absolute",
+        color:"white",
+        right:'20px',
         '&:hover': { opacity:0.8 },
     },
     noprint: {
@@ -89,6 +98,7 @@ const useStyles = makeStyles(theme => ({
 
 const Main = (props) => {
     const classes = useStyles();
+    const [ session, loading ] = useSession()
     const [selectedFrom, setSelectedFrom] = useState(new Date(((new Date()).setMonth(new Date().getMonth() - 1)))); //today - 1 month
     const [selectedTo, setSelectedTo] = useState(new Date());
     const router = useRouter()
@@ -134,6 +144,16 @@ const Main = (props) => {
                                 <SettingsIcon />
                             </IconButton>
                         </Tooltip>
+                        {!loading && session && <Tooltip title={`Logout user ${session.user.name}`}>
+                            <IconButton aria-label="logout" className={classes.iconmenupoint_logout} onClick={signOut}>
+                                <ExitToAppIcon />
+                            </IconButton>    
+                        </Tooltip>}
+                        {!loading && !session && <Tooltip title="Sign In">
+                            <IconButton aria-label="signin" className={classes.iconmenupoint_logout} onClick={signIn}>
+                                <ExitToAppIcon />
+                            </IconButton>    
+                        </Tooltip>}
                     </Toolbar>
                 </AppBar>
 

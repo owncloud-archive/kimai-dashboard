@@ -167,7 +167,7 @@ const Settings = (props) => {
             <ThemeProvider theme={theme}>
                 <CssBaseline/>
                 <Head>
-                    <title>Owncloud Reporting Dashboard | Settings</title>
+                    <title>Kimai Reporting Dashboard | Settings</title>
                     <link
                         rel="stylesheet"
                         href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700&display=swap"/>

@@ -1,7 +1,18 @@
 // const Parallel = require('async-parallel');
 const kimai = require('../../backend_modules/kimai');
+import { withAuth } from '../../modules/withAuth'
 
-export default async (req, res) => {
+
+export default withAuth( async (req, res) => {
+    if (process.env.AUTH_GROUPS_BOOKING) {
+        const validGroups = process.env.AUTH_GROUPS_BOOKING.split(',')
+        const found = validGroups.some((r) => req.auth.user.groups.includes(r))
+        if (!found){
+            return res.status(403).json({ message: 'You are not in the correct group to access time booking.' })
+        }
+    } else {
+        console.warn('No allowed user groups for the booking page defined. Allowing all groups now!')
+    }
     try{
         if (req.method === 'POST') {
             const { body } = req;
@@ -56,4 +67,4 @@ export default async (req, res) => {
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify({ message: e.message }));
     }
-};
+});
