@@ -36,6 +36,8 @@ JWT_SECRET="ewrgw3456746hwrth35678356jh"
 AUTH_GROUPS_DASHBOARD="Delivering Crew,Staff"
 # the LDAP groups/ou that are allowed to access the time booking page
 AUTH_GROUPS_BOOKING="Office Management,Staff"
+# the LDAP groups/ou that are allowed to access the import page
+AUTH_GROUPS_IMPORT="Office Management,Staff"
 ```
 
 ## Build the docker container
