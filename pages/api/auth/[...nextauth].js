@@ -1,6 +1,6 @@
 import NextAuth from 'next-auth'
 import Providers from 'next-auth/providers'
-import { authenticate } from '@trieb.work/ldap-authentication';
+import { authenticate } from 'ldap-authentication';
 
 
 
@@ -14,7 +14,7 @@ const ldapEmailField = process.env.LDAP_MAPPING_MAIL
 const ldapAdminUsername = process.env.LDAP_ADMIN_USERNAME
 const ldapAdminPassword = process.env.LDAP_ADMIN_PASSWORD
 const ldapGroupsSearchBase = process.env.LDAP_GROUPS_SEARCH_BASE
-const ldapGroupObjectClass = process.env.LDAP_GROUPS_OBJECT_CLASS
+const ldapGroupObjectClass = process.env.LDAP_GROUPS_OBJECT_CLASS || 'Group'
 
 if(!ldapAdminUsername) throw new Error('Please add an LDAP admin user.')
 
@@ -66,13 +66,13 @@ const options = {
               // Authenticate with the LDAP Server
               const LDAPUserObject = await authenticate(LDAPoptions).catch(e => console.log(e))
               if (LDAPUserObject) {
-                const groups = LDAPUserObject.groups.map((group) => group.cn);
+                const groups = LDAPUserObject.groups ? LDAPUserObject.groups.map((group) => group.cn) : [];
                 user = { id: LDAPUserObject[ldapIdField], name: LDAPUserObject[ldapNameField] || LDAPUserObject['givenName'], email: LDAPUserObject[ldapEmailField], groups }
               }
               
             } catch (error) {
               console.error(error)
-              return Promise.reject(new Error('There was an error in the application. Check the server logs'))
+              return Promise.reject(new Error(''))
             }
 
       
